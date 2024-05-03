@@ -62,16 +62,26 @@ def data_counts():
 
     return jsonify(counts)
 
+import re
+
 @app.route('/country')
 def data_country():
     global df
 
-    #获取数据，暂存并处理仅保留PL不为空的数据
+    # 获取数据，暂存并处理仅保留 PL 不为空的数据
     df_country = df[df['PL'].notna()]
-    #对PL中的内容计数
+    # 对 PL 中的内容计数
     country_counts = df_country['PL'].value_counts().to_dict()
-    print(country_counts)
-    return jsonify(country_counts)
+
+    # 将数据格式化为你需要的格式
+    data = []
+    for country, count in country_counts.items():
+        # 使用正则表达式替换括号及括号内的内容为空
+        cleaned_country = re.sub(r'\(.*?\)', '', country).strip()
+        data.append({'name': cleaned_country, 'value': count})
+
+    return jsonify(data)
+
 
 
 
