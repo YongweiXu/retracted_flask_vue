@@ -104,18 +104,18 @@ header .showtime {
 .column:nth-child(2) {
   flex: 5;
 }
-.mainbox .column .no {
+.no {
   background-color: rgba(101, 132, 226, 0.1);
   padding: 0.1875rem;
 }
-.mainbox .column .no .no-hd {
+.no .no-hd {
   position: relative;
   border: 1px solid rgba(25, 186, 139, 0.17);
 }
-.mainbox .column .no .no-hd ul {
+.no .no-hd ul {
   display: flex;
 }
-.mainbox .column .no .no-hd ul li {
+.no .no-hd ul li {
   position: relative;
   flex: 1;
   text-align: center;
@@ -127,7 +127,7 @@ header .showtime {
   font-family: electronicFont;
   font-weight: bold;
 }
-.mainbox .column .no .no-hd ul li:first-child::after {
+.no .no-hd ul li:first-child::after {
   content: "";
   position: absolute;
   height: 50%;
@@ -136,7 +136,7 @@ header .showtime {
   right: 0;
   top: 25%;
 }
-.mainbox .column .no .no-hd::before {
+.no .no-hd::before {
   content: "";
   position: absolute;
   width: 30px;
@@ -146,7 +146,7 @@ header .showtime {
   top: 0;
   left: 0;
 }
-.mainbox .column .no .no-hd::after {
+.no .no-hd::after {
   position: absolute;
   content: "";
   width: 30px;
@@ -156,10 +156,10 @@ header .showtime {
   right: 0;
   bottom: 0;
 }
-.mainbox .column .no .no-bd ul {
+.no .no-bd ul {
   display: flex;
 }
-.mainbox .column .no .no-bd ul li {
+.no .no-bd ul li {
   flex: 1;
   height: 0.5rem;
   line-height: 0.5rem;
@@ -223,5 +223,4 @@ header .showtime {
     transform: translate(-50%, -50%) rotate(-360deg);
   }
 }
-li { list-style-type:none;}
 /*# sourceMappingURL=index.css.map */
