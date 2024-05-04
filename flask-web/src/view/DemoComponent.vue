@@ -1,143 +1,143 @@
 <template>
   <div>
-    <header>
-      <h1>撤稿数据可视化大屏</h1>
-      <div class="showtime">{{ currentTime }}</div>
-    </header>
-    <section>
-      <div class="mainbox">
-        <div class="column">
-          <div class="panel bar">
-            <h2>撤稿论文的被引用次数</h2>
-            <div id="myChart1" style="width: 110%; height: 110%; text-align: center"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel line">
-            <h2>各出版社每年撤稿占比</h2>
-            <div id="myChart2" style="width: 100%; height: 100%"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel pie">
-            <h2>撤稿出版社地区前十</h2>
-            <div id="myChart3" style="width: 100%; height: 100%;"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
-
-        <div class="column">
-          <div class="no">
-            <div class="no-hd">
-              <ul>
-                <li>{{ frontendDemand }}</li>
-                <li>{{ marketSupply }}</li>
-              </ul>
-            </div>
-            <div class="no-bd">
-              <ul>
-                <li style="list-style-type:none;">总数据数</li>
-                <li style="list-style-type:none;">有效数据数</li>
-              </ul>
-            </div>
-          </div>
-          <div class="map">
-            <div class="chart"></div>
-
-            <div class="map2"></div>
-            <div>
-              <img :src="'http://localhost:5000/wordcloud'" alt="" style="width: 500px; height: 300px; text-align: center">
-            </div>
-            <div class="map3"></div>
-          </div>
-        </div>
-        <div class="column">
-          <div class="panel bar2">
-            <h2>年份撤稿关系</h2>
-            <div id="myChart4" style="width: 110%; height: 110%; text-align: center"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel line2">
-            <h2>撤稿学科前十占比</h2>
-            <div id="myChart5" style="width:110%; height: 110%; text-align: center"></div>
-            <div class="panel-footer"></div>
-          </div>
-          <div class="panel pie2">
-            <h2>综合年度被撤稿关键词TOP10</h2>
-            <div id="myChart6" style="width:110%; height: 110%; text-align: center"></div>
-            <div class="panel-footer"></div>
-          </div>
-        </div>
+    <div class="head clearfix">
+      <h1 class="pulll_left">生物医学期刊撤稿大数据可视化看板</h1>
+      <div class="menu menu2 pulll_left">
+        <ul>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题样式</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+        </ul>
       </div>
-    </section>
+      <div class="time">{{ currentTime }}</div>
+    </div>
+    <div class="mainbox">
+      <ul class="clearfix nav1">
+        <li style="width: 22%">
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" style="height: 330px;">
+              <div class="yqlist">
+                <ul class="clearfix">
+                  <li>
+                    <div class="yq" id="yq">2634</div>
+                    <span>原始数据量</span>
+                  </li>
+                  <li>
+                    <div class="yq">567</div>
+                    <span>有效数据量</span>
+                  </li>
+                  <li>
+                    <div class="yq">56345</div>
+                    <span>重新发表</span>
+                  </li>
+                  <li>
+                    <div class="yq">721</div>
+                    <span>数据展示(4)</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" style="height: 430px;">
+              <div class="" style="height: 406px" id="echart2"></div>
+            </div>
+          </div>
+        </li>
+        <li style="width: 56%">
+          <div class="box">
+            <div class="boxnav mapc" style="height: 550px; position: relative">
+              <div class="map" id="map">
+                <iframe ref="iframe"
+                        :src="htmlSrc"
+                        width="100%"
+                        height="100%"
+                        frameborder="0">
+                </iframe>
+              </div>
+            </div>
+          </div>
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" style="height: 250px;" id="echart3"></div>
+          </div>
+        </li>
+        <li style="width: 22%">
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" id="echart4" style="height: 200px;"></div>
+          </div>
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" style="height: 250px;" id="echart5"></div>
+          </div>
+          <div class="box">
+            <div class="tit">模块标题</div>
+            <div class="boxnav" style="height: 250px;" id="echart6"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
-import * as echarts from 'echarts';
-import axios from 'axios';
-import { Chart1 } from './static/js/Chart.js';
-import { Chart2 } from "./static/js/Chart.js"; // 导入 drawBarChart 函数
-import { Chart3 } from "./static/js/Chart.js"; // 导入 drawLineChart 函数
-import { Chart4 } from "./static/js/Chart.js"; // 导入 drawPieChart 函数
-import { Chart5 } from "./static/js/Chart.js"; // 导入 drawLineChart 函数
-import { Chart6 } from "./static/js/Chart.js"; // 导入 drawPieChart 函数
 export default {
   data() {
     return {
       currentTime: '',
-      frontendDemand: '',
-      marketSupply: ''
+      htmlSrc: 'static/js/test2.html',
+      salesTotal: 2634 // Example data, replace with actual data
     };
   },
   mounted() {
-    axios.get('http://localhost:5000/counts')
-    .then(response => {
-      // 更新原始数据量和清洗后数据量
-      this.frontendDemand = response.data.original_count;
-      this.marketSupply = response.data.cleaned_count;
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
     this.updateTime();
     setInterval(this.updateTime, 1000);
-        // 初始化图表
-    const myChart1 = echarts.init(document.getElementById('myChart1'));
-    const myChart2 = echarts.init(document.getElementById('myChart2'));
-    const myChart3 = echarts.init(document.getElementById('myChart3'));
-    const myChart4 = echarts.init(document.getElementById('myChart4'));
-    const myChart5 = echarts.init(document.getElementById('myChart5'));
-    const myChart6 = echarts.init(document.getElementById('myChart6'));
-
-    Chart1(myChart1);
-    Chart2(myChart2);
-    Chart3(myChart3);
-    Chart4(myChart4);
-    Chart5(myChart5);
-    Chart6(myChart6);
+    window.addEventListener('message', this.getiframeMsg)
   },
   methods: {
     updateTime() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
+      const y = now.getFullYear();
+      const mt = now.getMonth() + 1;
       const day = now.getDate();
-      const hour = now.getHours();
-      const minute = now.getMinutes();
-      const second = now.getSeconds();
-      this.currentTime = `${year}年${month}月${day}日-${hour}时${minute}分${second}秒`;
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const s = now.getSeconds();
+      this.currentTime = `${y}/${mt}/${day} ${h}:${m}:${s}`;
+    },
+
+    // vue获取iframe传递过来的信息
+    getiframeMsg(event) {
+      const res = event.data;
+      console.log(event)
+      if (res.cmd == 'myIframe') {
+        console.log(res)
+      }
+    },
+    // vue向iframe传递信息
+    vueSendMsg() {
+      const iframeWindow = this.$refs.iframe.contentWindow;
+      iframeWindow.postMessage({
+        cmd: 'myVue',
+        params: {
+          info: 'Vue向iframe传递的消息',
+        }
+      }, '*')
+    },
+    // 触发iframe中的方法
+    iframeMethods() {
+      this.$refs.iframe.contentWindow.triggerByVue('通过Vue触发iframe中的方法');
     }
   }
 };
 </script>
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 
+<style scoped>
 
 </style>

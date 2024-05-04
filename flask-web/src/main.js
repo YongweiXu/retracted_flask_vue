@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import App from '../src/view/DemoComponent.vue';
 
-import './view/static/index.css';
-import './view/static/js/flexible.js';
+import '../public/static/css/index.css';
+import '../public/static/js/flexible.js';
 import './util/rem';
 
 const app = createApp(App);

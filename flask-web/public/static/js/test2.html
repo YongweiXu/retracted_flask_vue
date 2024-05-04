@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+    <style>
+        /* 定义body元素为Flex容器，并设置其子元素垂直和水平居中 */
+        body {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            height: 100vh; /* 设置body高度为视口高度，保证垂直居中生效 */
+            margin: 0; /* 清除默认的外边距 */
+            background-color: transparent; /* 设置背景色为透明 */
+            overflow-y: hidden; /* 隐藏垂直滚动条 */
+        }
+
+        /* 自定义容器的样式 */
+        .chart-container {
+            width: 1800px;
+            height: 1200px;
+        }
+    </style>
+    <script type="text/javascript" src="echarts.min.js"></script>
+    <script type="text/javascript" src="world.js"></script>
+</head>
+<body>
+    <div id="container" class="chart-container"></div>
+    <script>
+        var chart_container = echarts.init(
+            document.getElementById('container'), 'white', {renderer: 'canvas'});
+
+        // Fetch data from the backend
+        fetch('http://127.0.0.1:5000/country')
+            .then(response => response.json())
+            .then(data => {
+                var option_container = {
+                    "series": [
+                        {
+                            "type": "map",
+                            "name": "country", // 修改这里的 name 属性为 "country"
+                            "label": {
+                                "show": false,
+                                "position": "top",
+                                "margin": 8
+                            },
+                            "mapType": "world",
+                            "data": data,
+                            "roam": true,
+                            "zoom": 1,
+                            "showLegendSymbol": false,
+                            "itemStyle": {
+                                "normal": {
+                                    "areaColor": "#eee",
+                                    "borderColor": "#999"
+                                },
+                                "emphasis": {
+                                    "areaColor": "#ccc"
+                                }
+                            },
+                            "visualMap": {
+                                "min": 1,
+                                "max": 11050,
+                                "text": ["High", "Low"],
+                                "calculable": true,
+                                "inRange": {
+                                    "color": ['#d73027', '#fc8d59', '#fee08b', '#d9ef8b', '#91cf60', '#1a9850', '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00'] // 更多的颜色选项
+                                }
+                            }
+                        }
+                    ],
+                    "tooltip": {
+                        "show": true,
+                        "trigger": "item",
+                        "triggerOn": "mousemove|click",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "textStyle": {
+                            "fontSize": 14
+                        },
+                        "borderWidth": 0
+                    }
+                };
+
+                // 设置每个数据项的 itemStyle
+                data.forEach((item, index) => {
+                    option_container.series[0].data[index].itemStyle = {
+                        "color": index === 0 ? "#AD241C" :
+                                 index === 1 ? "#B83828" :
+                                 index === 2 ? "#E4882D" :
+                                 index === 3 ? "#FC990A" :
+                                 index === 4 ? "#A0522D" :
+                                 index === 5 ? "#CD853F" :
+                                 index === 6 ? "#DEB887" :
+                                 index === 7 ? "#FFE4B5" :
+                                 index === 8 ? "#EF8F3A" :
+                                 index === 9 ? "#F7D99B" :
+                                 index === 10 ? "#5247AE" :
+                                 index === 11 ? "#DDA0DD" :
+                                 index === 12 ? "#DDA0DD" :
+                                 index === 13? "#DDA0DD" :
+                                 index === 14 ? "#DDA0DD" :
+                                 index === 15 ? "#B0C4DE" :
+                                 index === 16 ? "#B0C4DE" :
+                                 index === 17 ? "#B0C4DE" :
+                                 index === 18 ? "#B0C4DE" :
+                                 index === 19 ? "#B0C4DE" :
+                                 index === 20 ? "#B0C4DE" :
+                                 index === 21 ? "#B0C4DE" :
+                                 index === 22 ? "#B0C4DE" :
+                                 index === 23 ? "#7C89DC" :
+                                 index === 24 ? "#7C89DC" :
+                                 index === 25 ? "#7C89DC" :
+                                 index === 26 ? "#7C89DC" :
+                                 index === 27 ? "#7C89DC" :
+                                 index === 28 ? "#7C89DC" :
+                                 index === 29 ? "#7C89DC" :
+                                 index === 30 ? "#7C89DC" :
+                                 index === 31 ? "#7C89DC" :
+                                 index === 32 ? "#7C89DC" :
+                                 index === 33? "#7C89DC" :
+                                 index === 34 ? "#7C89DC" :
+                                 "#88D1C5" // 这里可以继续添加更多颜色
+                    };
+                });
+
+                chart_container.setOption(option_container);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>

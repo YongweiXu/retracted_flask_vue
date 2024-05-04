@@ -8,6 +8,7 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "html-loader": "^5.0.0",
     "postcss-pxtorem": "^6.1.0"
   }
 }
