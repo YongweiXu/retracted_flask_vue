@@ -1,8 +1,10 @@
+import itertools
 from collections import Counter
 
 from flask import Flask, request, jsonify, send_file
 from flask_pymongo import PyMongo
 import pandas as pd
+from scipy.sparse import dok_matrix
 from collections import defaultdict
 from wordcloud import WordCloud
 
@@ -81,6 +83,67 @@ def data_country():
         data.append({'name': cleaned_country, 'value': count})
 
     return jsonify(data)
+
+
+
+@app.route('/Coc')
+def cooccurrence_matrix_with_max_combination_json():
+    global df
+
+    # 获取 MH 数据
+    mh_data = df['MH'].dropna().tolist()
+
+    # 初始化共现矩阵字典
+    matrix = defaultdict(int)
+
+    # 遍历每个子列表
+    for terms in mh_data:
+        unique_terms = set(terms)
+        for term1 in unique_terms:
+            for term2 in unique_terms:
+                if term1 != term2:
+                    # 更新共现次数
+                    if term1 < term2:
+                        matrix[(term1, term2)] += 1
+                    else:
+                        matrix[(term2, term1)] += 1
+
+    # 找到共现次数前400的组合
+    top_400_combinations = sorted(matrix.items(), key=lambda x: x[1], reverse=True)[:42]
+
+    # 初始化共现矩阵字典
+    matrix_dict = {}
+
+    # 填充共现次数
+    for (term1, term2), value in top_400_combinations:
+        if term1 not in matrix_dict:
+            matrix_dict[term1] = {}
+        if term2 not in matrix_dict:
+            matrix_dict[term2] = {}
+        matrix_dict[term1][term2] = value
+        matrix_dict[term2][term1] = value
+
+    # 找到所有的词汇
+    all_terms = sorted(matrix_dict.keys())
+
+    # 初始化共现矩阵
+    matrix_array = [[0] * (len(all_terms) + 1) for _ in range(len(all_terms) + 1)]
+    matrix_array[0][0] = ''
+
+    # 填充第一行和第一列
+    for i, term in enumerate(all_terms, start=1):
+        matrix_array[0][i] = term
+        matrix_array[i][0] = term
+
+    # 填充共现次数
+    for i, term1 in enumerate(all_terms, start=1):
+        for j, term2 in enumerate(all_terms, start=1):
+            if term2 in matrix_dict[term1]:
+                matrix_array[i][j] = matrix_dict[term1][term2]
+
+    return jsonify(cooccurrence_matrix=matrix_array)
+
+
 
 
 

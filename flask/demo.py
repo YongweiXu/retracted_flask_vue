@@ -1,35 +1,40 @@
-import requests
+from flask import jsonify
+from collections import defaultdict
+import itertools
 
-# 定义 Flask 应用的地址
-base_url = 'http://127.0.0.1:5000'
+def cooccurrence_matrix_with_max_combination_json():
+    global df
 
+    # 获取 MH 数据
+    mh_data = df['MH'].dropna().tolist()
 
-# 访问所有路由的函数
-def access_all_routes():
-    # 查询所有数据
-    response = requests.get(f'{base_url}/query')
-    print('查询所有数据:', response.json())
+    # 初始化共现矩阵
+    matrix = defaultdict(int)
 
-    # 按年份统计文章数量
-    response = requests.get(f'{base_url}/PY')
-    print('按年份统计文章数量:', response.json())
+    # 遍历每个子列表
+    for terms in mh_data:
+        unique_terms = sorted(set(terms))
+        # 更新共现次数
+        for term1, term2 in itertools.combinations(unique_terms, 2):
+            matrix[(term1, term2)] += 1
 
-    # 获取出版社年份退稿关系数据
-    response = requests.get(f'{base_url}/PU')
-    print('获取出版社年份退稿关系数据:', response.json())
+    # 找到共现次数前 20 的组合
+    top_20_combinations = sorted(matrix.items(), key=lambda x: x[1], reverse=True)[:20]
 
-    # 获取关键词年份关系数据
-    response = requests.get(f'{base_url}/DE')
-    print('获取关键词年份关系数据:', response.json())
+    # 创建二维矩阵
+    matrix_data = [[""] * (len(top_20_combinations) + 1) for _ in range(len(top_20_combinations) + 1)]
 
-    # 获取标题和被引用次数数据
-    response = requests.get(f'{base_url}/TIZ9')
-    print('获取标题和被引用次数数据:', response.json())
+    # 添加行和列标签
+    matrix_data[0][0] = "Terms"
+    for i, (terms, _) in enumerate(top_20_combinations):
+        matrix_data[0][i+1] = f"{terms[0]} 和 {terms[1]}"
+        matrix_data[i+1][0] = f"{terms[0]} 和 {terms[1]}"
 
-    # 获取每个学科的文章数量统计
-    response = requests.get(f'{base_url}/WC')
-    print('获取每个学科的文章数量统计:', response.json())
+    # 填充矩阵数据
+    for i, (terms, value) in enumerate(top_20_combinations):
+        term1, term2 = terms
+        matrix_data[i+1][i+1] = str(value)
 
-
-# 调用函数访问所有路由
-access_all_routes()
+    return matrix_data
+x = cooccurrence_matrix_with_max_combination_json()
+print(x)
