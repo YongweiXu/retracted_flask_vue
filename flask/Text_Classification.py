@@ -6,6 +6,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Embedding, Conv1D, GlobalMaxPooling1D, Dense, Dropout
 from pymongo import MongoClient
+import tensorflow as tf
 import os
 
 # 连接到MongoDB
@@ -67,7 +68,7 @@ print("sequences_padded shape:", sequences_padded.shape)
 print("X_train shape:", X_train.shape)
 print("X_test shape:", X_test.shape)
 
-model_path = 'model/text_classification_model.h5'
+model_path = 'text_classification_model'
 
 if os.path.exists(model_path):
     model = load_model(model_path)
@@ -87,12 +88,12 @@ else:
     print("已创建新模型。")
 
 # 训练模型
-model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=16, validation_data=(np.array(X_test), np.array(y_test)))
+model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=8, validation_data=(np.array(X_test), np.array(y_test)))
 
 # 评估模型
 loss, accuracy = model.evaluate(np.array(X_test), np.array(y_test))
 print(f'Test Accuracy: {accuracy:.4f}')
 
 # 保存模型
-model.save(model_path)
+tf.saved_model.save(model, model_path)
 print("模型已保存。")

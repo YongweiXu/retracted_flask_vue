@@ -4,6 +4,7 @@ from collections import Counter
 from flask import Flask, request, jsonify, send_file
 from flask_pymongo import PyMongo
 import pandas as pd
+import re
 from scipy.sparse import dok_matrix
 from collections import defaultdict
 from wordcloud import WordCloud
@@ -64,7 +65,8 @@ def data_counts():
 
     return jsonify(counts)
 
-import re
+
+
 
 @app.route('/country')
 def data_country():
@@ -72,18 +74,20 @@ def data_country():
 
     # 获取数据，暂存并处理仅保留 PL 不为空的数据
     df_country = df[df['PL'].notna()]
+
+    # 对 PL 中的内容进行处理：先将所有 'England' 替换为 'United Kingdom'，然后去除括号及括号内的内容
+    df_country['PL'] = df_country['PL'].apply(
+        lambda x: re.sub(r'\(.*?\)', '', x).strip().replace('England', 'United Kingdom'))
+
     # 对 PL 中的内容计数
     country_counts = df_country['PL'].value_counts().to_dict()
 
     # 将数据格式化为你需要的格式
     data = []
     for country, count in country_counts.items():
-        # 使用正则表达式替换括号及括号内的内容为空
-        cleaned_country = re.sub(r'\(.*?\)', '', country).strip()
-        data.append({'name': cleaned_country, 'value': count})
+        data.append({'name': country, 'value': count})
 
     return jsonify(data)
-
 
 
 @app.route('/Coc')
