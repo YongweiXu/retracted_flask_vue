@@ -87,7 +87,7 @@ else:
     print("已创建新模型。")
 
 # 训练模型
-model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=16, validation_data=(np.array(X_test), np.array(y_test)))
+model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=8, validation_data=(np.array(X_test), np.array(y_test)))
 
 # 评估模型
 loss, accuracy = model.evaluate(np.array(X_test), np.array(y_test))
