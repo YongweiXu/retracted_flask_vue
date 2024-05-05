@@ -18,6 +18,8 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+from flask_vue.flask.predict_text import predict_text
+
 app = Flask(__name__, static_url_path='/', static_folder='./../flask-dist', template_folder='./../flask-dist')
 app.config["MONGO_URI"] = "mongodb://localhost:27017/pubmed"
 mongo = PyMongo(app)
@@ -344,28 +346,13 @@ def get_data():
 
 
 
-@app.route('/classify_text', methods=['POST'])
-def classify_text():
-    # 从前端获取文本
-    text = request.data.decode('utf-8')
+@app.route('/predict', methods=['POST'])
+def prediction():
+    data = request.get_json()
+    text_to_predict = data['text']
+    prediction_result = predict_text(text_to_predict)
+    return jsonify(prediction_result)
 
-    # 文本预处理
-    tokenizer = Tokenizer()
-    tokenizer.fit_on_texts([text])
-    sequence = tokenizer.texts_to_sequences([text])
-    max_length = 500  # 设定序列最大长度
-    sequence_padded = pad_sequences(sequence, maxlen=max_length, padding='post')
-
-    # 加载模型
-    loaded_model = tf.saved_model.load(model_path)
-
-    # 进行预测
-    output = loaded_model.signatures["serving_default"](tf.cast(tf.constant(sequence_padded), tf.float32))
-    probabilities = output['predictions'][0][0].numpy()
-    # 返回概率值
-    positive_probability = probabilities
-    negative_probability = 1 - probabilities
-    return jsonify({'positive_probability': positive_probability, 'negative_probability': negative_probability})
 
 
 @app.route('/get_pubmed_records', methods=['POST'])

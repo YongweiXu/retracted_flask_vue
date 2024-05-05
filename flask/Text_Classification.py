@@ -1,99 +1,128 @@
+import torch
+from torch import nn
+from gensim.models import Word2Vec
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import Sequential, save_model  # 修改导入的模块
-from tensorflow.keras.layers import Embedding, Conv1D, GlobalMaxPooling1D, Dense, Dropout
 from pymongo import MongoClient
-from tensorflow.keras.models import load_model
-import os
+from sklearn.model_selection import train_test_split
+from nltk.tokenize import word_tokenize
+from torch.utils.data import DataLoader, TensorDataset
+from tqdm import tqdm
+from CharCNN import CharCNN
+import pickle
 
-# 连接到MongoDB
+# 检查是否有 GPU 可用
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def generate_embedding_matrix(word_to_index):
+    # 加载预训练的 Word2Vec 模型
+    word2vec_model = Word2Vec.load("model/word2vec.model")
+
+    embedding_dim = word2vec_model.vector_size
+    vocab_size = len(word_to_index)
+    embedding_matrix = np.zeros((vocab_size, embedding_dim))
+
+    for word, index in word_to_index.items():
+        if word in word2vec_model.wv:
+            embedding_matrix[index] = word2vec_model.wv[word]
+
+    return embedding_matrix
+
+
+# 连接 MongoDB
 client = MongoClient('mongodb://localhost:27017/')
-
-# 选择数据库
 db = client['pubmed']
 
-# 选择集合
-collection1 = db['pubmed_collection']
-collection2 = db['pubmed_review_collection']
+# 从集合中获取数据并转换为 DataFrame
+data1 = list(db['pubmed_collection'].find({}, {'AB': 1}))
+data2 = list(db['pubmed_review_collection'].find({}, {'AB': 1}))
 
-# 获取集合中的数据并转换为DataFrame
-data1 = list(collection1.find({}, {'_id': 0, 'AB': 1}))
-data2 = list(collection2.find({}, {'_id': 0, 'AB': 1}))
-
-# 转换为DataFrame
 df1 = pd.DataFrame(data1)
 df2 = pd.DataFrame(data2)
-
-# 为DataFrame添加label列
+df1.drop('_id', axis=1, inplace=True)
+df2.drop('_id', axis=1, inplace=True)
+df1.dropna(subset=['AB'], inplace=True)
+df2.dropna(subset=['AB'], inplace=True)
+df1.rename(columns={'AB': 'text'}, inplace=True)
+df2.rename(columns={'AB': 'text'}, inplace=True)
 df1['label'] = 'rejection'
 df2['label'] = 'pass'
 
-# 重命名AB列
-df1.rename(columns={'AB': 'text'}, inplace=True)
-df2.rename(columns={'AB': 'text'}, inplace=True)
+df = pd.concat([df1, df2], ignore_index=True)
 
-# 去除空值
-df1.dropna(inplace=True)
-df2.dropna(inplace=True)
+# 对文本进行分词
+texts = [word_tokenize(text.lower()) for text in df['text']]
 
-print("训练数据量:", len(df1) + len(df2))
+# 构建词汇表和词汇索引映射
+word_set = set(word for text in texts for word in text)
+word_to_index = {word: idx for idx, word in enumerate(word_set)}
+vocab_size = len(word_to_index)
 
-# 打印df1和df2的行数
-print("df1行数:", len(df1))
-print("df2行数:", len(df2))
+# 构建词嵌入矩阵
+embeddings = generate_embedding_matrix(word_to_index)
+
+# 保存 embeddings
+torch.save(embeddings, 'model/embeddings.pt')
 
 # 数据预处理
-texts = df1['text'].tolist() + df2['text'].tolist()
-labels = df1['label'].tolist() + df2['label'].tolist()
+sequences = [[word_to_index[word] for word in text] for text in texts]
+max_seq_len = max(len(seq) for seq in sequences)
+# 将最大序列长度保存到文件中
+with open('model/max_seq_len.pkl', 'wb') as f:
+    pickle.dump(max_seq_len, f)
 
-# 标签编码
-label_map = {'rejection': 0, 'pass': 1}
-labels = [label_map[label] for label in labels]
-
-# 将文本转换为序列
-tokenizer = Tokenizer()
-tokenizer.fit_on_texts(texts)
-sequences = tokenizer.texts_to_sequences(texts)
-
-# 序列填充
-max_length = 500  # 设定序列最大长度
-sequences_padded = pad_sequences(sequences, maxlen=max_length, padding='post')
+X = np.array([seq + [0] * (max_seq_len - len(seq)) for seq in sequences])
+y = np.array(df['label'].map({'rejection': 0, 'pass': 1}))
 
 # 划分训练集和测试集
-X_train, X_test, y_train, y_test = train_test_split(sequences_padded, labels, test_size=0.2, random_state=42)
-print("sequences_padded shape:", sequences_padded.shape)
-print("X_train shape:", X_train.shape)
-print("X_test shape:", X_test.shape)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-model_path = 'text_classification_model'
+# 调整批量大小
+batch_size = 4
 
-if os.path.exists(model_path):
-    model = load_model(model_path)
-    print("已加载现有模型。")
-else:
-    # 创建新模型
-    model = Sequential([
-        Embedding(input_dim=len(tokenizer.word_index) + 1, output_dim=100, input_length=max_length),
-        Conv1D(128, 5, activation='relu'),
-        GlobalMaxPooling1D(),
-        Dropout(0.5),  # 添加dropout层，丢弃率为0.5
-        Dense(64, activation='relu'),
-        Dropout(0.5),  # 添加dropout层，丢弃率为0.5
-        Dense(1, activation='sigmoid')
-    ])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    print("已创建新模型。")
+# 创建数据加载器
+train_dataset = TensorDataset(torch.LongTensor(X_train), torch.LongTensor(y_train))
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+# 模型配置
+class Config:
+    num_channels = 256
+    seq_len = max_seq_len
+    linear_size = 256  # 与卷积层输出大小匹配
+    output_size = 2
+    dropout_keep = 0.5
+
+# 创建模型实例并移到 GPU
+model = CharCNN(Config(), embeddings)
+model.to(device)  # 将模型移到设备上
+
+# 损失函数
+criterion = nn.CrossEntropyLoss()
+
+# 选择优化器
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+# 学习率调度器
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 
 # 训练模型
-model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=4, validation_data=(np.array(X_test), np.array(y_test)))
+num_epochs = 20
+for epoch in range(num_epochs):
+    model.train()
+    loop = tqdm(train_loader, leave=True)
+    for inputs, labels in loop:
+        optimizer.zero_grad()
+        inputs, labels = inputs.to(device), labels.to(device)  # 将数据移动到设备上
+        inputs = inputs.long()  # 将输入张量的数据类型转换为 Long 类型
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        loop.set_description(f'Epoch [{epoch + 1}/{num_epochs}]')
+        loop.set_postfix(loss=loss.item())
+    # 调用学习率调度器
+    scheduler.step()
 
-# 评估模型
-loss, accuracy = model.evaluate(np.array(X_test), np.array(y_test))
-print(f'Test Accuracy: {accuracy:.4f}')
-
-# 保存模型
-save_model(model, model_path)  # 使用 Keras 的模型保存方式保存模型
-print("模型已保存。")
+# 保存模型参数
+torch.save(model.state_dict(), 'model/char_cnn_model.pth')
