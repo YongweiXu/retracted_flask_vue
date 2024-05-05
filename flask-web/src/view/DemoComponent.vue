@@ -4,7 +4,7 @@
       <h1 class="pulll_left">生物医学期刊撤稿大数据可视化看板</h1>
       <div class="menu menu2 pulll_left">
         <ul>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><a href="https://gitee.com/iGaoWei/big-data-view">首页</a></li>
           <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题样式</a></li>
           <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
           <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
@@ -18,7 +18,7 @@
       <ul class="clearfix nav1">
         <li style="width: 22%">
           <div class="box">
-            <div class="tit">模块标题</div>
+            <div class="tit">数据信息一览</div>
             <div class="boxnav" style="height: 330px;">
               <div class="yqlist">
                 <ul class="clearfix">
@@ -32,20 +32,20 @@
                   </li>
                   <li>
                     <div class="yq">56345</div>
-                    <span>重新发表</span>
+                    <span>正常数据量</span>
                   </li>
                   <li>
                     <div class="yq">721</div>
-                    <span>数据展示(4)</span>
+                    <span>退稿数据量</span>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
           <div class="box">
-            <div class="tit">模块标题</div>
-            <div class="boxnav" style="height: 430px;">
-              <div class="" style="height: 406px" id="echart2"></div>
+            <div class="tit">退稿作者top15</div>
+            <div  class="boxnav" style="height: 430px">
+              <div id="myRanking" style="height: 430px "></div>
             </div>
           </div>
         </li>
@@ -63,22 +63,28 @@
             </div>
           </div>
           <div class="box">
-            <div class="tit">模块标题</div>
+            <div class="tit">撤稿信息轮播图</div>
             <div class="boxnav" style="height: 250px;" id="echart3"></div>
           </div>
         </li>
         <li style="width: 22%">
           <div class="box">
-            <div class="tit">模块标题</div>
-            <div class="boxnav" id="echart4" style="height: 200px;"></div>
+            <div class="tit">关键词共现矩阵</div>
+            <div  class="boxnav" style="height: 200px">
+              <div id="myMatrix" style="height: 140% ;width: 100%;" ></div>
+            </div>
           </div>
           <div class="box">
-            <div class="tit">模块标题</div>
-            <div class="boxnav" style="height: 250px;" id="echart5"></div>
+            <div class="tit">年份撤稿关系</div>
+            <div  class="boxnav" style="height: 250px">
+              <div  id="myChart4" style="height: 100% ;width: 100%;"></div>
+            </div>
           </div>
           <div class="box">
-            <div class="tit">模块标题</div>
-            <div class="boxnav" style="height: 250px;" id="echart6"></div>
+            <div class="tit">期刊年份退稿关系</div>
+            <div  class="boxnav" style="height: 250px">
+              <div  id="myChart2" style="height: 100% ;width: 100%;"></div>
+            </div>
           </div>
         </li>
       </ul>
@@ -87,6 +93,11 @@
 </template>
 
 <script>
+import * as echarts from 'echarts';
+import { Ranking } from './js/newChart';
+import { matrix } from './js/newChart';
+import { Chart4 } from './js/Chart';
+import { Chart2 } from './js/Chart';
 export default {
   data() {
     return {
@@ -98,7 +109,15 @@ export default {
   mounted() {
     this.updateTime();
     setInterval(this.updateTime, 1000);
-    window.addEventListener('message', this.getiframeMsg)
+    window.addEventListener('message', this.getiframeMsg);
+    const myRanking = echarts.init(document.getElementById('myRanking'))
+    const myChart4 = echarts.init(document.getElementById('myChart4'))
+    const myChart2 = echarts.init(document.getElementById('myChart2'))
+    // 在组件挂载后调用 matrix 函数来初始化 echarts 实例
+    this.initMatrixChart();
+    Ranking(myRanking);
+    Chart4(myChart4);
+    Chart2(myChart2);
   },
   methods: {
     updateTime() {
@@ -111,13 +130,19 @@ export default {
       const s = now.getSeconds();
       this.currentTime = `${y}/${mt}/${day} ${h}:${m}:${s}`;
     },
+    // 初始化 echarts 实例的方法
+    initMatrixChart() {
+      const myMatrix = echarts.init(document.getElementById('myMatrix'));
 
+      // 假设 matrix 函数接受一个参数来初始化 echarts 实例
+      matrix(myMatrix);
+    },
     // vue获取iframe传递过来的信息
     getiframeMsg(event) {
       const res = event.data;
-      console.log(event)
+      console.log(event);
       if (res.cmd == 'myIframe') {
-        console.log(res)
+        console.log(res);
       }
     },
     // vue向iframe传递信息
@@ -128,7 +153,7 @@ export default {
         params: {
           info: 'Vue向iframe传递的消息',
         }
-      }, '*')
+      }, '*');
     },
     // 触发iframe中的方法
     iframeMethods() {
@@ -139,5 +164,5 @@ export default {
 </script>
 
 <style scoped>
-
+/* 这里可以添加一些局部样式 */
 </style>
