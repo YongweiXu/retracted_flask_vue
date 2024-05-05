@@ -3,10 +3,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.models import Sequential, save_model  # 修改导入的模块
 from tensorflow.keras.layers import Embedding, Conv1D, GlobalMaxPooling1D, Dense, Dropout
 from pymongo import MongoClient
-import tensorflow as tf
+from tensorflow.keras.models import load_model
 import os
 
 # 连接到MongoDB
@@ -88,12 +88,12 @@ else:
     print("已创建新模型。")
 
 # 训练模型
-model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=8, validation_data=(np.array(X_test), np.array(y_test)))
+model.fit(np.array(X_train), np.array(y_train), epochs=10, batch_size=4, validation_data=(np.array(X_test), np.array(y_test)))
 
 # 评估模型
 loss, accuracy = model.evaluate(np.array(X_test), np.array(y_test))
 print(f'Test Accuracy: {accuracy:.4f}')
 
 # 保存模型
-tf.saved_model.save(model, model_path)
+save_model(model, model_path)  # 使用 Keras 的模型保存方式保存模型
 print("模型已保存。")

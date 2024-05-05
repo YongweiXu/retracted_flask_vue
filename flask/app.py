@@ -6,8 +6,13 @@ from flask import Flask, request, jsonify, send_file
 from flask_pymongo import PyMongo
 import pandas as pd
 import re
+from Bio import Entrez, Medline
+import time
+from http.client import IncompleteRead
 from scipy.sparse import dok_matrix
 from collections import defaultdict
+
+from tensorboard.compat import tf
 from wordcloud import WordCloud
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -18,8 +23,10 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/pubmed"
 mongo = PyMongo(app)
 
 model_path = 'text_classification_model'
-model = load_model(model_path)
 tokenizer = Tokenizer()
+
+API_KEY = "c61d19c529b4ca05f8dc340f265d9f7d4408"
+EMAIL = "xyw0206070@outlook.com"
 
 ##连接数据库并获取数据
 def get_data_from_mongodb():
@@ -30,21 +37,9 @@ def get_data_from_mongodb():
         df = pd.DataFrame(list(data))
         # 删除 '_id' 字段
         df.drop('_id', axis=1, inplace=True)
-        print(df)
         return df
     except Exception as e:
-        print("Error while getting data from MongoDB:", e)
-        return None
-
-
-##存储数据到全局变量
-# def load_data():
-#     # 加载数据并保存到全局变量 df 中
-#     df = get_data_from_mongodb()
-#     if df is not None:
-#         return 'Data loaded successfully'
-#     else:
-#         return 'Failed to load data'
+        return "Error while getting data from MongoDB:", e
 
 
 @app.after_request
@@ -56,7 +51,7 @@ def after_request(response):
 
 
 ##数据库记录计数
-@app.route('/counts')
+@app.route('/counts', methods=['GET'])
 def data_counts():
     df = get_data_from_mongodb()
     if df is None:
@@ -76,7 +71,7 @@ def data_counts():
 
 
 ##国家计数
-@app.route('/country')
+@app.route('/country', methods=['GET'])
 def data_country():
     df = get_data_from_mongodb()
     if df is None:
@@ -100,7 +95,7 @@ def data_country():
 
 
 ##共现矩阵
-@app.route('/Coc')
+@app.route('/Coc', methods=['GET'])
 def cooccurrence_matrix_with_max_combination_json():
     df = get_data_from_mongodb()
     if df is None:
@@ -157,7 +152,7 @@ def cooccurrence_matrix_with_max_combination_json():
 
 
 ##年份计数
-@app.route('/PY')
+@app.route('/PY', methods=['GET'])
 def count_by_year():
     df = get_data_from_mongodb()
     if df is None:
@@ -171,7 +166,7 @@ def count_by_year():
 
 
 ##期刊年份退稿关系
-@app.route('/PU')
+@app.route('/PU', methods=['GET'])
 #读取数据并构建出版社年份退稿关系
 def generate_chart_data():
     df = get_data_from_mongodb()
@@ -211,7 +206,7 @@ def generate_chart_data():
 
 
 #关键词年份关系
-@app.route('/DE')
+@app.route('/DE', methods=['GET'])
 def get_de_dcom_relationship():
     df = get_data_from_mongodb()
     if df is None:
@@ -245,7 +240,7 @@ def get_de_dcom_relationship():
 
 
 #标题和被引用次数
-@app.route('/TIZ9')
+@app.route('/TIZ9', methods=['GET'])
 def get_echarts_data():
     df = get_data_from_mongodb()
     if df is None:
@@ -273,7 +268,7 @@ def get_echarts_data():
 
 
 ##关键词词云图
-@app.route('/wordcloud')
+@app.route('/wordcloud', methods=['GET'])
 def generate_wordcloud():
     df = get_data_from_mongodb()
     if df is None:
@@ -297,7 +292,7 @@ def generate_wordcloud():
 
 
 ##被退稿最多的作者
-@app.route('/AU')
+@app.route('/AU', methods=['GET'])
 def top_rejected_authors():
     df = get_data_from_mongodb()
     if df is None:
@@ -317,9 +312,10 @@ def top_rejected_authors():
 
     return jsonify(top_rejected_authors)
 
+
 #数据轮播图
 
-@app.route('/data')
+@app.route('/data', methods=['GET'])
 def get_data():
     global sampled_data
 
@@ -339,11 +335,14 @@ def get_data():
 
         # 随机抽样
         if len(df) >= 15:
-            sampled_data = df[['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU']].dropna().sample(n=15, replace=False).values.tolist()
+            sampled_data = df[['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU']].dropna().sample(n=15,
+                                                                                          replace=False).values.tolist()
         else:
             sampled_data = df[['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU']].dropna().values.tolist()  # 如果数据不足15条，返回所有数据
 
     return jsonify(sampled_data)
+
+
 
 @app.route('/classify_text', methods=['POST'])
 def classify_text():
@@ -351,18 +350,72 @@ def classify_text():
     text = request.data.decode('utf-8')
 
     # 文本预处理
+    tokenizer = Tokenizer()
     tokenizer.fit_on_texts([text])
     sequence = tokenizer.texts_to_sequences([text])
     max_length = 500  # 设定序列最大长度
     sequence_padded = pad_sequences(sequence, maxlen=max_length, padding='post')
 
-    # 进行预测
-    probabilities = model.predict(np.array(sequence_padded))[0][0]
+    # 加载模型
+    loaded_model = tf.saved_model.load(model_path)
 
+    # 进行预测
+    output = loaded_model.signatures["serving_default"](tf.cast(tf.constant(sequence_padded), tf.float32))
+    probabilities = output['predictions'][0][0].numpy()
     # 返回概率值
     positive_probability = probabilities
     negative_probability = 1 - probabilities
     return jsonify({'positive_probability': positive_probability, 'negative_probability': negative_probability})
+
+
+@app.route('/get_pubmed_records', methods=['POST'])
+def get_pubmed_records():
+    # 从前端获取关键词
+    search_term = request.json['term']
+
+    # 最多获取记录数
+    max_records = 10000
+
+    retries = 0
+    while retries < 3:
+        try:
+            # 在 PubMed 中搜索
+            handle = Entrez.esearch(db='pubmed', term=search_term, usehistory='y')
+            search_results = Entrez.read(handle)
+            webenv = search_results['WebEnv']
+            query_key = search_results['QueryKey']
+            total_records = min(int(search_results['Count']), max_records)
+
+            # 获取所有记录
+            batch_size = min(10000, max_records)
+            records = []
+            for start in range(0, total_records, batch_size):
+                end = min(total_records, start + batch_size)
+                handle = Entrez.efetch(db='pubmed', webenv=webenv, query_key=query_key, retstart=start,
+                                       retmax=batch_size, retmode='text', rettype='medline')
+                batch_records = list(Medline.parse(handle))
+
+                # 提取所需字段内容
+                for record in batch_records:
+                    record_info = {}
+                    for field in ['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU', 'AB']:
+                        record_info[field] = record.get(field, '')
+                    records.append(record_info)
+
+            return jsonify({'records': records})
+
+        except IncompleteRead:
+            retries += 1
+            time.sleep(2)
+            continue
+
+        except Exception as e:
+            retries += 1
+            time.sleep(2)
+            print(f"错误：{e}")
+            continue
+
+    return jsonify({'error': 'Failed to retrieve PubMed records'})
 
 
 if __name__ == '__main__':
