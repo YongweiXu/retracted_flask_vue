@@ -72,11 +72,3 @@ def predict_text(text):
 
         # 返回预测结果
         return result
-
-
-
-
-# 测试值
-test_text = ("The epitranscriptomic modification m(6)A is a prevalent RNA modification that plays a crucial role in the regulation of various aspects of RNA metabolism. It has been found to be involved in a wide range of physiological processes and disease states. Of particular interest is the role of m(6)A machinery and modifications in viral infections, serving as an evolutionary marker for distinguishing between self and non-self entities. In this review article, we present a comprehensive overview of the epitranscriptomic modification m(6)A and its implications for the interplay between viruses and their host, focusing on immune responses and viral replication. We outline future research directions that highlight the role of m(6)A in viral nucleic acid recognition, initiation of antiviral immune responses, and modulation of antiviral signaling pathways. Additionally, we discuss the potential of m(6)A as a prognostic biomarker and a target for therapeutic interventions in viral infections.")
-test_result = predict_text(test_text)
-print("Test Result:", test_result)
