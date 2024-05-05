@@ -1,6 +1,7 @@
 import itertools
 from collections import Counter
 
+import numpy as np
 from flask import Flask, request, jsonify, send_file
 from flask_pymongo import PyMongo
 import pandas as pd
@@ -8,15 +9,20 @@ import re
 from scipy.sparse import dok_matrix
 from collections import defaultdict
 from wordcloud import WordCloud
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 app = Flask(__name__, static_url_path='/', static_folder='./../flask-dist', template_folder='./../flask-dist')
 app.config["MONGO_URI"] = "mongodb://localhost:27017/pubmed"
 mongo = PyMongo(app)
 
-df = None
+model_path = 'text_classification_model'
+model = load_model(model_path)
+tokenizer = Tokenizer()
+
 ##连接数据库并获取数据
 def get_data_from_mongodb():
-    global df  # 声明 df 为全局变量
     try:
         # 从名为 'retracted_papers' 的集合中读取数据
         data = mongo.db.pubmed_collection.find()
@@ -30,15 +36,16 @@ def get_data_from_mongodb():
         print("Error while getting data from MongoDB:", e)
         return None
 
+
 ##存储数据到全局变量
-def load_data():
-    # 加载数据并保存到全局变量 df 中
-    global df
-    df = get_data_from_mongodb()
-    if df is not None:
-        return 'Data loaded successfully'
-    else:
-        return 'Failed to load data'
+# def load_data():
+#     # 加载数据并保存到全局变量 df 中
+#     df = get_data_from_mongodb()
+#     if df is not None:
+#         return 'Data loaded successfully'
+#     else:
+#         return 'Failed to load data'
+
 
 @app.after_request
 def after_request(response):
@@ -47,10 +54,13 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
+
 ##数据库记录计数
 @app.route('/counts')
 def data_counts():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
 
     #退稿数据计数
     original_count = mongo.db.pubmed_collection.count_documents({})
@@ -59,18 +69,18 @@ def data_counts():
     # 构建返回的 JSON 对象
     counts = {
         're_count': original_count,
-        'pass_count' : pass_count
+        'pass_count': pass_count
     }
 
     return jsonify(counts)
 
 
-
 ##国家计数
 @app.route('/country')
 def data_country():
-    global df
-
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     # 获取数据，暂存并处理仅保留 PL 不为空的数据
     df_country = df[df['PL'].notna()]
 
@@ -88,10 +98,13 @@ def data_country():
 
     return jsonify(data)
 
+
 ##共现矩阵
 @app.route('/Coc')
 def cooccurrence_matrix_with_max_combination_json():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
 
     # 获取 MH 数据
     mh_data = df['MH'].dropna().tolist()
@@ -142,13 +155,13 @@ def cooccurrence_matrix_with_max_combination_json():
 
     return jsonify(output_data)
 
+
 ##年份计数
 @app.route('/PY')
 def count_by_year():
-    global df
-    # 检查数据是否已加载
+    df = get_data_from_mongodb()
     if df is None:
-        return 'Data not loaded yet', 400
+        return 'Failed to load data', 500
     # 对 'PY' 字段进行计数统计
     df_cleaned = df.dropna(subset=['DCOM'])
     year_counts = df_cleaned['DCOM'].astype(str).str[:4].value_counts().to_dict()
@@ -161,7 +174,9 @@ def count_by_year():
 @app.route('/PU')
 #读取数据并构建出版社年份退稿关系
 def generate_chart_data():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     df = df.dropna(subset=['DCOM'])
     df = df.dropna(subset=['TA'])
     # 计算每个出版社每年的退稿次数
@@ -194,10 +209,13 @@ def generate_chart_data():
 
     return jsonify(data=chart_data)
 
+
 #关键词年份关系
 @app.route('/DE')
 def get_de_dcom_relationship():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     df = df.dropna(subset=['DCOM'])
     df = df.dropna(subset=['MH'])
     # 创建一个空的字典，用于存储关键词和每年的计数
@@ -225,10 +243,13 @@ def get_de_dcom_relationship():
     # 返回关系变化数据
     return jsonify(result)
 
+
 #标题和被引用次数
 @app.route('/TIZ9')
 def get_echarts_data():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     df = df.dropna(subset=['VI'])
     df = df.dropna(subset=['MH'])
     # 将Z9列作为纵坐标轴的数据（dataAxi）
@@ -254,7 +275,9 @@ def get_echarts_data():
 ##关键词词云图
 @app.route('/wordcloud')
 def generate_wordcloud():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     df = df.dropna(subset=['MH'])
     # 合并 "MH" 列中的列表内容为一个字符串
     mh_text = ''
@@ -272,10 +295,13 @@ def generate_wordcloud():
     # 返回词云图像的 URL
     return send_file(wordcloud_file, mimetype='image/png')
 
+
 ##被退稿最多的作者
 @app.route('/AU')
 def top_rejected_authors():
-    global df
+    df = get_data_from_mongodb()
+    if df is None:
+        return 'Failed to load data', 500
     df = df.dropna(subset=['FAU'])
     # 将FAU列展开为单独的行
     authors = df.explode('FAU')
@@ -291,33 +317,53 @@ def top_rejected_authors():
 
     return jsonify(top_rejected_authors)
 
+#数据轮播图
+
+@app.route('/data')
+def get_data():
+    global sampled_data
+
+    # 将 sampled_data 重置为 None，以便刷新
+    sampled_data = None
+
+    # 如果抽样数据未被设置或数据量发生变化，重新进行随机抽样
+    if sampled_data is None or len(sampled_data) != 15:
+        df = get_data_from_mongodb()
+        if df is None:
+            return '无法加载数据', 500
+
+        # 数据处理
+        df['DCOM'] = pd.to_datetime(df['DCOM'], format='%Y%m%d', errors='coerce')
+        df['DCOM'] = df['DCOM'].dt.strftime('%Y-%m-%d')
+        df['AU'] = df['AU'].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+
+        # 随机抽样
+        if len(df) >= 15:
+            sampled_data = df[['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU']].dropna().sample(n=15, replace=False).values.tolist()
+        else:
+            sampled_data = df[['PMID', 'STAT', 'DCOM', 'IS', 'TI', 'AU']].dropna().values.tolist()  # 如果数据不足15条，返回所有数据
+
+    return jsonify(sampled_data)
+
+@app.route('/classify_text', methods=['POST'])
+def classify_text():
+    # 从前端获取文本
+    text = request.data.decode('utf-8')
+
+    # 文本预处理
+    tokenizer.fit_on_texts([text])
+    sequence = tokenizer.texts_to_sequences([text])
+    max_length = 500  # 设定序列最大长度
+    sequence_padded = pad_sequences(sequence, maxlen=max_length, padding='post')
+
+    # 进行预测
+    probabilities = model.predict(np.array(sequence_padded))[0][0]
+
+    # 返回概率值
+    positive_probability = probabilities
+    negative_probability = 1 - probabilities
+    return jsonify({'positive_probability': positive_probability, 'negative_probability': negative_probability})
 
 
-
-# @app.route('/query')
-# def query_data():
-#     global df
-#     # 获取查询参数
-#     query_params = request.args.to_dict()
-#     # 如果查询参数为空，则返回原始数据
-#     if not query_params:
-#         df = get_data_from_mongodb()
-#         return jsonify(df.to_dict(orient='records'))
-#     # 如果只有一个查询字段，则使用该字段进行查询
-#     elif len(query_params) == 1:
-#         field, value = list(query_params.items())[0]
-#         df = get_data_from_mongodb()
-#         query_result = df[df[field] == value]
-#         return jsonify(query_result.to_dict(orient='records'))
-#     # 如果有多个查询字段，则使用联合查询的方式
-#     else:
-#         df = get_data_from_mongodb()
-#         query = " & ".join([f"{field} == '{value}'" for field, value in query_params.items()])
-#         query_result = df.query(query)
-#         return jsonify(query_result.to_dict(orient='records'))
-
-
-load_data()
 if __name__ == '__main__':
-    load_data()
     app.run(debug=True)
