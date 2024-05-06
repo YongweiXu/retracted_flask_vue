@@ -1,17 +1,17 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
+  <div>
+    <index-page></index-page>
+
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import router from './router'
+import IndexPage from "@/view/IndexPage.vue";
 
-export default defineComponent({
+export default {
   name: 'App',
-  router
-})
-
+  components: {
+    IndexPage
+  }
+}
 </script>
-
