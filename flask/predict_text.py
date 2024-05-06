@@ -66,7 +66,3 @@ def predict_text(text):
 
         # 返回预测结果
         return result
-
-text = "this is a test"
-
-print(predict_text(text))

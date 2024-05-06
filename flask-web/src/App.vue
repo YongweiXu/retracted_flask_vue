@@ -1,18 +1,22 @@
 <template>
-  <div>
-    <index></index>
+  <div id="app">
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Index from './view/IndexPage.vue'
+import { defineComponent } from 'vue'
+import router from './router'
 
+export default defineComponent({
+  name: 'App',
+  router
+})
 export default {
   name: 'App',
   components: {
-    Index
+    IndexPage
   }
 }
 </script>
-
 

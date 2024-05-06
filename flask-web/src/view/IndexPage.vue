@@ -1,10 +1,8 @@
 <template>
-  <div @click="redirectToHomePage">
-    <img src="././static/images/bg2.png" alt="" class="bg-image">
-    <div>
+  <div @click="redirectToHomePage" class="container">
+    <img src="./static/images/bg2.png" alt="" class="bg-image">
+    <div class="content">
       <h1>生物医学撤稿大数据看板</h1>
-    </div>
-    <div>
       <p>
         <span>"生物医学撤稿大数据看板"是一个基于PubMed数据库的项目，旨在为研究人员和学者提供一个集中</span><br/>
         <span>展示生物医学领域撤稿文献信息的平台。该项目的目标是为生物医学研究者提供一个高效、</span><br/>
@@ -28,51 +26,38 @@ export default {
 </script>
 
 <style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  position: relative;
+  height: 100vh;
 }
 
 .bg-image {
-  position: fixed;
   width: 100%;
-  height: 100vh;
-  opacity: 0.84;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.content {
+  text-align: center;
+  color: white;
+  z-index: 1;
+  position: relative;
 }
 
 h1 {
-  color: white;
-  font-family: Arial, sans-serif;
   font-size: 4em;
-  text-align: center;
   margin-top: 200px;
   margin-bottom: 100px;
-  position: relative;
-  z-index: 1;
-}
-
-div {
-  position: relative;
-  left: 50px;
-  bottom: 200px;
-  text-shadow: 1px 1px 2px;
-  opacity: 1;
-  z-index: 1;
 }
 
 p {
-  color: white;
-  font-family: main_Arial, sans-serif;
   font-size: 1.6em;
-  text-align: center;
-  margin-top: auto;
-  margin-bottom: auto;
 }
 </style>
