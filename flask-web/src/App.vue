@@ -12,11 +12,6 @@ export default defineComponent({
   name: 'App',
   router
 })
-export default {
-  name: 'App',
-  components: {
-    IndexPage
-  }
-}
+
 </script>
 
