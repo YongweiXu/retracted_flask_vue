@@ -1,7 +1,4 @@
-import itertools
 from collections import Counter
-
-import numpy as np
 from flask import Flask, request, jsonify, send_file
 from flask_pymongo import PyMongo
 import pandas as pd
@@ -9,23 +6,15 @@ import re
 from Bio import Entrez, Medline
 import time
 from http.client import IncompleteRead
-from scipy.sparse import dok_matrix
 from collections import defaultdict
-
-from tensorboard.compat import tf
 from wordcloud import WordCloud
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-
 from flask_vue.flask.predict_text import predict_text
 
 app = Flask(__name__, static_url_path='/', static_folder='./../flask-dist', template_folder='./../flask-dist')
 app.config["MONGO_URI"] = "mongodb://localhost:27017/pubmed"
 mongo = PyMongo(app)
 
-model_path = 'text_classification_model'
-tokenizer = Tokenizer()
+
 
 API_KEY = "c61d19c529b4ca05f8dc340f265d9f7d4408"
 EMAIL = "xyw0206070@outlook.com"

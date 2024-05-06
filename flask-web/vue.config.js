@@ -1,10 +1,12 @@
 const px2rem = require("postcss-px2rem");
+const webpack = require('webpack'); // 导入 webpack 模块
 
 // 配置基本大小
 px2rem({
   // 基准大小 baseSize，需要和rem.js中相同
   remUnit: 80,
 });
+
 module.exports = {
   // 公共路径
   publicPath: './',
@@ -24,5 +26,12 @@ module.exports = {
         }
       }
     }
+  },
+  configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true // 定义特性标志
+      })
+    ]
   }
 };

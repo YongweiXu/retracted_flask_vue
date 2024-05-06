@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            overflow: hidden;
+            font-family: 'Siemens Sans', Helvetica, 'sans-serif';
+            margin: 0;
+            height: 100%;
+        }
+
+        .table {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            margin: auto;
+            line-height: 30px;
+            text-align: center;
+            background-color: rgb(70, 130, 180);
+            font-size: 12px;
+            color: rgba(173, 216, 230, 0.8);
+            opacity: 0.8;
+        }
+
+        .table th,
+        .table td {
+            width: auto;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #022459;
+        }
+
+        .table tr:nth-child(odd) {
+            background-color: #3064A8;
+        }
+
+        .scroll-box {
+            height: 210px; /* 70px * 3 */
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+            transform: translateZ(0);
+        }
+
+        /* 轮播部分表格相关设置 */
+        .scroll-tab {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            background-color: rgb(15, 50, 81);
+            font-size: 12px;
+            color: rgba(240, 248, 255, 0.8);
+        }
+
+        .scroll-tab th,
+        .scroll-tab td {
+            width: auto;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+    <title></title>
+</head>
+
+	<body>
+		<div id="table1">
+			<table border="1" class="table" style="margin: auto;" cellspacing="0" cellpadding="0">
+				<thead>
+					<tr>
+						<th style="width: 5%;">PMID</th>
+                        <th style="width: 8%;">状态</th>
+                        <th style="width: 9%;">日期</th>
+                        <th style="width: 13%;">ISSN</th>
+                        <th style="width: 35%;">标题</th>
+                        <th style="width: 30%;">作者</th>
+					</tr>
+				</thead>
+			</table>
+
+			<div class="scroll-box">
+				<table class="scroll-tab" border="0" cellspacing="0" cellpadding="0">
+					<tbody class="scrollContent">
+						<th style="width: 5%;">PMID</th>
+                        <th style="width: 8%;">状态</th>
+                        <th style="width: 9%;">日期</th>
+                        <th style="width: 13%;">ISSN</th>
+                        <th style="width: 35%;">标题</th>
+                        <th style="width: 30%;">作者</th>
+					</tbody>
+
+				</table>
+			</div>
+		</div>
+
+
+        <script>
+        var carousel_speed = 15;
+        var scrollContent = document.getElementsByClassName('scroll-box').item(0);
+        var table = document.getElementsByClassName('scroll-tab').item(0);
+
+        var object_table = {
+            data: [],
+            carousel_speed: carousel_speed
+        }
+
+        $(document).ready(function () {
+            // Initial request
+            fetchData();
+
+            // Set interval to fetch data every 10 seconds
+            setInterval(fetchData, 10000); // 10000 milliseconds = 10 seconds
+        });
+
+        // Function to fetch data
+        function fetchData() {
+            $.get("http://127.0.0.1:5000/data", function (data) {
+                $(".scrollContent").empty();
+
+                data.slice(0, 15).forEach(function (item) {
+                    var row = "<tr>";
+                    row += "<td style=\"width: 5%;\">" + item[0] + "</td>"; // PMID
+                    row += "<td style=\"width: 6%;\">" + item[1] + "</td>"; // 状态
+                    row += "<td style=\"width: 8%;\">" + item[2] + "</td>"; // 日期
+                    row += "<td style=\"width: 11%;\">" + item[3] + "</td>"; // ISSN
+                    row += "<td style=\"width: 40%;\">" + item[4] + "</td>"; // 标题
+                    row += "<td style=\"width: 30%;\">" + item[5] + "</td>"; // 作者
+                    row += "</tr>";
+
+                    $(".scrollContent").append(row);
+                });
+
+                roll(object_table.carousel_speed);
+            });
+        }
+
+        function roll(t) {
+            var timer = setInterval(rollStart, t);
+
+            table.onmouseover = function () {
+                clearInterval(timer);
+            };
+
+            table.onmouseout = function () {
+                timer = setInterval(rollStart, t);
+            };
+        }
+
+        function rollStart() {
+            if (scrollContent.scrollTop >= scrollContent.scrollHeight / 2) {
+                scrollContent.scrollTop = 0;
+            } else {
+                scrollContent.scrollTop++;
+            }
+        }
+    </script>
+	</body>
+
+</html>

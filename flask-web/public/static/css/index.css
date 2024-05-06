@@ -14,7 +14,7 @@ body {
 body {
   color: #fff;
   font-size: 16px;
-  background: #033c76 url(../images/bg.png) no-repeat;
+  background: #033c76 url(../../../src/view/static/images/bg.png) no-repeat;
   background-size: 100% 100%;
 }
 @font-face {
@@ -236,7 +236,7 @@ i {
   top: 8px;
 }
 .mapc {
-  background: url(../images/bg3.png) no-repeat center center;
+  background: url(../../../src/view/static/images/bg3.png) no-repeat center center;
   background-size: 100% 100%;
 }
 .map {
@@ -274,7 +274,7 @@ i {
   width: 100%;
   height: 100%;
   content: "";
-  background: url(../images/img1.png) center center;
+  background: url(../../../src/view/static/images/img1.png) center center;
   border-radius: 100px;
   background-size: 100% 100%;
   opacity: 0.3;
@@ -285,7 +285,7 @@ i {
 .yq:after {
   position: absolute;
   width: 86%;
-  background: url(../images/img2.png) center center;
+  background: url(../../../src/view/static/images/img2.png) center center;
   border-radius: 100px;
   background-size: 100% 100%;
   opacity: 0.3;

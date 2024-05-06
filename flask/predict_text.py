@@ -1,14 +1,11 @@
 import pickle
-from flask import Flask, request, jsonify
 import torch
 from nltk import word_tokenize
 from CharCNN import CharCNN  # 导入模型定义
 
-app = Flask(__name__)
 
 # 加载预训练的词嵌入矩阵
 embeddings = torch.load('model/embeddings.pt')
-
 
 # 加载模型配置
 class Config:
@@ -18,12 +15,11 @@ class Config:
     output_size = 2
     dropout_keep = 0.5
 
-
 # 创建模型实例
 model = CharCNN(Config(), embeddings)
 
-# 加载模型参数
-model.load_state_dict(torch.load('model/char_cnn_model.pth'))
+# 加载模型参数并转移到 CPU 上
+model.load_state_dict(torch.load('model/char_cnn_model.pth', map_location='cpu'))
 
 # 设置模型为评估模式
 model.eval()
@@ -32,7 +28,6 @@ model.eval()
 with open('model/max_seq_len.pkl', 'rb') as f:
     max_seq_len = pickle.load(f)
 
-
 # 定义文本预处理函数
 def preprocess_text(text, word_to_index):
     tokens = word_tokenize(text.lower())
@@ -40,7 +35,6 @@ def preprocess_text(text, word_to_index):
     seq = seq[:max_seq_len]  # 截断或填充序列以匹配模型期望的长度
     seq += [0] * (max_seq_len - len(seq))  # 补0对齐
     return torch.LongTensor(seq).unsqueeze(0)  # 不需要将张量移动到 GPU
-
 
 # 定义预测函数
 def predict_text(text):
@@ -72,3 +66,7 @@ def predict_text(text):
 
         # 返回预测结果
         return result
+
+text = "this is a test"
+
+print(predict_text(text))
