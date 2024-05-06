@@ -8,7 +8,7 @@ import time
 from http.client import IncompleteRead
 from collections import defaultdict
 from wordcloud import WordCloud
-from flask_vue.flask.predict_text import predict_text
+from predict_text import predict_text
 
 app = Flask(__name__, static_url_path='/', static_folder='./../flask-dist', template_folder='./../flask-dist')
 app.config["MONGO_URI"] = "mongodb://localhost:27017/pubmed"
@@ -204,6 +204,7 @@ def get_de_dcom_relationship():
         return 'Failed to load data', 500
     df = df.dropna(subset=['DCOM'])
     df = df.dropna(subset=['MH'])
+
     # 创建一个空的字典，用于存储关键词和每年的计数
     de_dcom_relationship = {}
 
@@ -221,10 +222,14 @@ def get_de_dcom_relationship():
     top_10_keywords = dict(
         sorted(de_dcom_relationship.items(), key=lambda item: sum(item[1].values()), reverse=True)[:15])
 
-    # 返回每个关键词每一年的变化情况
+    # 构建结果字典
     result = {}
     for keyword, year_counter in top_10_keywords.items():
-        result[keyword] = dict(year_counter)
+        years_data = {}
+        for year in range(1990, 2025):
+            year_str = str(year)
+            years_data[year_str] = year_counter.get(year_str, 0)  # 如果年份不存在，频次用0补充
+        result[keyword] = years_data
 
     # 返回关系变化数据
     return jsonify(result)

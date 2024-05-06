@@ -1,17 +1,5 @@
 <template>
-  <div>
-    <index-page></index-page>
-
+  <div id="App">
+    <router-view></router-view>
   </div>
 </template>
-
-<script>
-import IndexPage from "@/view/IndexPage.vue";
-
-export default {
-  name: 'App',
-  components: {
-    IndexPage
-  }
-}
-</script>

@@ -12,15 +12,21 @@
       </p>
     </div>
   </div>
+
+<router-view></router-view>
 </template>
 
 <script>
 export default {
   methods: {
     redirectToHomePage() {
-      // 使用编程式导航跳转到HomePage页面
-      this.$router.push({ name: 'HomePage' });
-    }
+      if (this.$router) {
+        this.$router.push('/homepage');
+      } else {
+        console.error('Router is not available');
+      }
+}
+
   }
 };
 </script>

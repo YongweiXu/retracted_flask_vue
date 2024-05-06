@@ -1,19 +1,18 @@
 <template>
   <div>
-    <div class="head clearfix">
+  <div class="head clearfix">
       <h1 class="pulll_left">生物医学期刊撤稿大数据可视化看板</h1>
       <div class="menu menu2 pulll_left">
         <ul>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">首页</a></li>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题样式</a></li>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
-          <li><a href="https://gitee.com/iGaoWei/big-data-view">导航标题</a></li>
+          <li><router-link to="/">首页</router-link></li>
+          <li><router-link to="/homepage">数据看板</router-link></li>
+          <li><router-link to="/homepage2">影响力看板</router-link></li>
+          <li><router-link to="/predictionpage">摘要预测</router-link></li>
+          <li><router-link to="/query">数据查询</router-link></li>
         </ul>
       </div>
       <div class="time">{{ currentTime }}</div>
-    </div>
+  </div>
     <div class="mainbox">
       <ul class="clearfix nav1">
         <li style="width: 22%">
@@ -107,7 +106,9 @@ import { matrix } from './js/newChart';
 import { Chart4 } from './js/Chart';
 import { Chart2 } from './js/Chart';
 import axios from "axios";
+
 export default {
+  name: 'HomePage',
   data() {
     return {
       currentTime: '',

@@ -440,48 +440,30 @@ export function Chart5(myChart5, myChart6) {
 
 
 
-
-
 export function Chart6(myChart) {
-  const countries = [
-    'Apoptosis',
-    'Invasion',
-    'Proliferation',
-    'apoptosis',
-    'gastric cancer',
-    'invasion',
-    'metastasis',
-    'migration',
-    'osteosarcoma',
-    'proliferation'
-  ];
-
-  // 发送请求获取数据
+  // 发送请求获取关键词数据
   fetch('http://localhost:5000/DE')
     .then(response => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('网络响应异常');
       }
       return response.json();
     })
     .then(data => {
+      const keywords = Object.keys(data); // 获取关键词列表
+
       const seriesList = [];
       const years = [];
 
-      // Collect all years and sort them
-      Object.values(data).forEach(item => {
-        Object.keys(item).forEach(year => {
-          if (!years.includes(year)) {
-            years.push(year);
-          }
-        });
-      });
-      years.sort();
+      // 收集所有年份并排序
+      for (let year = 1990; year <= 2025; year++) {
+        years.push(year.toString());
+      }
 
       years.forEach(year => {
         const dataItem = { Year: year };
-        countries.forEach(country => {
-          dataItem[country] = data[country][year] || 0;
+        keywords.forEach(keyword => {
+          dataItem[keyword] = data[keyword][year] || 0;
         });
         seriesList.push(dataItem);
       });
@@ -502,7 +484,7 @@ export function Chart6(myChart) {
           boundaryGap: false
         },
         yAxis: {
-          name: 'Income'
+          name: '数量'
         },
         grid: {
           right: 140
@@ -512,10 +494,10 @@ export function Chart6(myChart) {
           start: 0,
           end: 100
         }],
-        series: countries.map(country => ({
+        series: keywords.map(keyword => ({
           type: 'line',
           showSymbol: false,
-          name: country,
+          name: keyword,
           endLabel: {
             show: false,
             formatter: function (params) {
@@ -530,7 +512,7 @@ export function Chart6(myChart) {
           },
           encode: {
             x: 'Year',
-            y: country,
+            y: keyword,
             label: {
               show: false, // 默认不显示标签
               position: 'top', // 标签位置
@@ -538,7 +520,7 @@ export function Chart6(myChart) {
                 return params.value[1]; // 显示关键词名
               }
             },
-            tooltip: [country]
+            tooltip: [keyword]
           }
         }))
       };
@@ -546,6 +528,6 @@ export function Chart6(myChart) {
       myChart.setOption(option);
     })
     .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
+      console.error('发生了问题:', error);
     });
 }

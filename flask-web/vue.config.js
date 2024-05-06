@@ -9,8 +9,6 @@ px2rem({
 
 module.exports = {
   // 公共路径
-  publicPath: './',
-  outputDir: './../flask-dist',
   // 生产环境是否生成 sourceMap 文件
   productionSourceMap: false,
   // 服务器端口号
@@ -27,11 +25,4 @@ module.exports = {
       }
     }
   },
-  configureWebpack: {
-    plugins: [
-      new webpack.DefinePlugin({
-        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true // 定义特性标志
-      })
-    ]
-  }
 };

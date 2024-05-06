@@ -1,28 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import Index from "@/view/IndexPage.vue";
-import HomePage from "@/view/HomePage.vue";
-import Prediction from "@/view/PredictionPage.vue";
+import {createRouter,createWebHistory} from "vue-router";
 
 const router = createRouter({
-  history: createWebHistory(), // 使用 createWebHistory 创建历史模式
-  routes: [
-    {
-      path: '/',
-      name: 'Index',
-      component: Index
-    },
-    {
-      path: '/HomePage',
-      name: 'HomePage',
-      component: HomePage
-    },
-    {
-      path: '/prediction',
-      name: 'Prediction',
-      component: Prediction
-    }
-  ]
-});
-
+    routes:[
+        {
+            path:"/",
+            name:"index",
+            component:()=>import("../view/IndexPage.vue"),
+        },
+        {
+            path:"/homepage",
+            name:"homepage",
+            component:()=>import("../view/HomePage.vue"),
+        },
+        {
+          path:"/predictionpage",
+          name:"predictionpage",
+          component:()=>import("../view/PredictionPage.vue"),
+        },
+        {
+            path:"/query",
+            name:"query",
+            component:()=>import("../view/QueryPage.vue"),
+        },
+        {
+            path:"/homepage2",
+            name:"homepage2",
+            component:()=>import("../view/HomePage2.vue"),
+        }
+    ],
+    history:createWebHistory()
+})
 export default router;
-

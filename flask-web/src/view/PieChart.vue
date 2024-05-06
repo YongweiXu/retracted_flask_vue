@@ -18,7 +18,13 @@ export default {
         title: {
           text: '预测结果',
           subtext: '通过概率 vs 拒绝概率',
-          left: 'center'
+          left: 'center',
+          subtextStyle:{
+            color: '#efe5e3' // 标题颜色为黑色
+          },
+          textStyle: {
+            color: '#ee6b3f' // 标题颜色为黑色
+    }
         },
         tooltip: {
           trigger: 'item',
@@ -27,7 +33,10 @@ export default {
         legend: {
           orient: 'vertical',
           left: 'left',
-          data: ['通过概率', '拒绝概率']
+          data: ['通过概率', '拒绝概率'],
+          textStyle: {
+            color: '#efe5e3' // 标题颜色为黑色
+    }
         },
         series: [
           {
@@ -35,9 +44,12 @@ export default {
             type: 'pie',
             radius: '55%',
             center: ['50%', '60%'],
+            textStyle: {
+            color: '#efe5e3' // 标题颜色为黑色
+            },
             data: [
-              { value: this.passProbability, name: '通过概率' },
-              { value: this.rejectedProbability, name: '拒绝概率' }
+              { value: this.passProbability, name: '通过概率', itemStyle: { color: '#67C23A' } }, // 通过概率的颜色为绿色
+              { value: this.rejectedProbability, name: '拒绝概率', itemStyle: { color: '#F56C6C' } } // 拒绝概率的颜色为红色
             ],
             emphasis: {
               itemStyle: {
