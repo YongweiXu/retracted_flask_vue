@@ -359,6 +359,8 @@ def prediction():
 def get_pubmed_records():
     # 从前端获取关键词
     search_term = request.json['term']
+    Entrez.api_key = API_KEY
+    Entrez.email = EMAIL
 
     # 最多获取记录数
     max_records = 10000
