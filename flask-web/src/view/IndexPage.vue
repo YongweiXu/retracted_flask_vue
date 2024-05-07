@@ -37,7 +37,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
 }
 
 .bg-image {
@@ -52,14 +52,18 @@ export default {
 
 .content {
   text-align: center;
-  color: white;
+  color: #ADD8E6;
   z-index: 1;
   position: relative;
+  text-shadow: -1px -1px 0 #4169E1,
+                1px -1px 0 #4169E1,
+                -2px 2px 0 #4169E1,
+                1px 1px 0 #4169E1;
 }
 
 h1 {
   font-size: 4em;
-  margin-top: 200px;
+  margin-top: 120px;
   margin-bottom: 100px;
 }
 

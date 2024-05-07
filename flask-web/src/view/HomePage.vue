@@ -62,7 +62,7 @@
             </div>
           </div>
           <div class="box">
-            <div class="tit">撤稿信息轮播图</div>
+            <div class="tit">撤稿信息轮播表格</div>
             <div class="boxnav" style="height: 250px;" id="echart3">
               <iframe ref="iframe"
                       :src="htmlSrc2"

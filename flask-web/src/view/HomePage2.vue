@@ -30,7 +30,7 @@
         <div class="column">
           <div class="t_box">
             <header class="t_title">
-              <span>关键词词云</span>
+              <span>撤稿文献关键词及学科词云</span>
             </header>
             <div class="image-container">
               <img :src="'http://localhost:5000/wordcloud'" alt="" class="image">
