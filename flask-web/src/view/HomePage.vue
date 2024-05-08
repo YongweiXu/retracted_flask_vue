@@ -23,26 +23,26 @@
                 <ul class="clearfix">
                   <li>
                     <div class="yq" id="yq">{{Original + Pass}}</div>
-                    <span>总数据量</span>
+                    <span style="color: #ffff66">总数据量</span>
                   </li>
                   <li>
                     <div class="yq">{{Pass}}</div>
-                    <span>未被退稿数据量数据量</span>
+                    <span style="color: #ffff66">未被撤稿数据量</span>
                   </li>
                   <li>
                     <div class="yq">{{Original}}</div>
-                    <span>被退稿数据量</span>
+                    <span style="color: #ffff66">被撤稿数据量</span>
                   </li>
                   <li>
                     <div class="yq">57241</div>
-                    <span>模型训练数据量</span>
+                    <span style="color: #ffff66">模型训练数据量</span>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
           <div class="box">
-            <div class="tit">退稿作者top15</div>
+            <div class="tit">撤稿作者top15</div>
             <div  class="boxnav" style="height: 430px">
               <div id="myRanking" style="height: 430px "></div>
             </div>
@@ -62,7 +62,7 @@
             </div>
           </div>
           <div class="box">
-            <div class="tit">撤稿信息轮播图</div>
+            <div class="tit">撤稿信息轮播表格</div>
             <div class="boxnav" style="height: 250px;" id="echart3">
               <iframe ref="iframe"
                       :src="htmlSrc2"
@@ -88,7 +88,7 @@
             </div>
           </div>
           <div class="box">
-            <div class="tit">期刊年份退稿关系</div>
+            <div class="tit">期刊年份撤稿关系</div>
             <div  class="boxnav" style="height: 250px">
               <div  id="myChart2" style="height: 100% ;width: 100%;"></div>
             </div>
@@ -114,7 +114,7 @@ export default {
       currentTime: '',
       htmlSrc: 'static/js/test2.html',
       htmlSrc2: 'static/js/test.html',
-      salesTotal: 2634, // Example data, replace with actual data
+      salesTotal: 2634,
       Original: '',
       Pass: '',
     };
@@ -131,7 +131,7 @@ export default {
     const myRanking = echarts.init(document.getElementById('myRanking'))
     const myChart4 = echarts.init(document.getElementById('myChart4'))
     const myChart2 = echarts.init(document.getElementById('myChart2'))
-    // 在组件挂载后调用 matrix 函数来初始化 echarts 实例
+
     this.initMatrixChart();
     Ranking(myRanking);
     Chart4(myChart4);
@@ -148,14 +148,11 @@ export default {
       const s = now.getSeconds();
       this.currentTime = `${y}/${mt}/${day} ${h}:${m}:${s}`;
     },
-    // 初始化 echarts 实例的方法
     initMatrixChart() {
       const myMatrix = echarts.init(document.getElementById('myMatrix'));
 
-      // 假设 matrix 函数接受一个参数来初始化 echarts 实例
       matrix(myMatrix);
     },
-    // vue获取iframe传递过来的信息
     getiframeMsg(event) {
       const res = event.data;
       console.log(event);
@@ -163,7 +160,6 @@ export default {
         console.log(res);
       }
     },
-    // vue向iframe传递信息
     vueSendMsg() {
       const iframeWindow = this.$refs.iframe.contentWindow;
       iframeWindow.postMessage({
@@ -173,7 +169,6 @@ export default {
         }
       }, '*');
     },
-    // 触发iframe中的方法
     iframeMethods() {
       this.$refs.iframe.contentWindow.triggerByVue('通过Vue触发iframe中的方法');
     }
@@ -182,5 +177,5 @@ export default {
 </script>
 
 <style scoped>
-/* 这里可以添加一些局部样式 */
+
 </style>

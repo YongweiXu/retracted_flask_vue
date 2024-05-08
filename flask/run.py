@@ -11,7 +11,5 @@ def index():
     return render_template('index.html')
 
 
-# template_folder 设置的路径下的 index.html
-
 if __name__ == '__main__':
     app.run(debug=True)

@@ -10,38 +10,43 @@ export function matrix(myChart) {
         const matrix1 = [];
         for (let i = 0; i < term1.length; i++) {
             for (let j = 0; j < term2.length; j++) {
-                // 注意调换了 j 和 i 的位置，以便正确显示在热力图中
                 matrix1.push([term2[j], term1[i], matrix[i][j]]);
             }
         }
 
-        // 使用提取的数据渲染图表
         const option = {
             tooltip: {
                 position: 'top',
                 formatter: function(params) {
-                    return  params.data[1] + '<br>' + // 修改这里以适应调换后的数据格式
-                            params.data[0] + '<br>' + // 修改这里以适应调换后的数据格式
+                    return  params.data[1] + '<br>' +
+                            params.data[0] + '<br>' +
                             params.data[2];
                 }
             },
             xAxis: {
-                type: 'category', // 设置 x 轴为分类轴
-                data: term2, // 使用 term2 作为 x 轴数据
-                show: false, // 关闭 x 轴显示
+                type: 'category',
+                data: term2,
+                show: false,
             },
             yAxis: {
-                type: 'category', // 设置 y 轴为分类轴
-                data: term1, // 使用 term1 作为 y 轴数据
-                show: false, // 关闭 y 轴显示
+                type: 'category',
+                data: term1,
+                show: false,
             },
             visualMap: {
                 min: 0,
-                max: 5000, // 加大颜色取值范围
+                max: 5000,
                 calculable: false,
                 orient: 'horizontal',
                 left: 'center',
-                bottom: '12%'
+                bottom: '12%',
+                textStyle: {
+                    color: '#A52A2A',
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    textBorderColor: '#FFFACD',
+                    textBorderWidth: 2
+    }
             },
             series: [{
                 name: '共现矩阵',
@@ -59,10 +64,8 @@ export function matrix(myChart) {
             }]
         };
 
-        // 设置图表配置
         myChart.setOption(option);
 
-        // 在上一级容器中垂直居中
         const parentContainer = myChart.getDom().parentNode;
         parentContainer.style.display = 'flex';
         parentContainer.style.justifyContent = 'center';

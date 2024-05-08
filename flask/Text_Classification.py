@@ -11,7 +11,7 @@ from tqdm import tqdm
 from CharCNN import CharCNN
 import pickle
 
-# 检查是否有 GPU 可用
+#检查是否有GPU可用
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -30,11 +30,11 @@ def generate_embedding_matrix(word_to_index):
     return embedding_matrix
 
 
-# 连接 MongoDB
+#连接MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['pubmed']
 
-# 从集合中获取数据并转换为 DataFrame
+#从集合中获取数据并转换为DataFrame
 data1 = list(db['pubmed_collection'].find({}, {'AB': 1}))
 data2 = list(db['pubmed_review_collection'].find({}, {'AB': 1}))
 
@@ -51,41 +51,39 @@ df2['label'] = 'pass'
 
 df = pd.concat([df1, df2], ignore_index=True)
 
-# 对文本进行分词
+#对文本进行分词
 texts = [word_tokenize(text.lower()) for text in df['text']]
 
-# 构建词汇表和词汇索引映射
+#构建词汇表和词汇索引映射
 word_set = set(word for text in texts for word in text)
 word_to_index = {word: idx for idx, word in enumerate(word_set)}
 vocab_size = len(word_to_index)
 
-# 构建词嵌入矩阵
+#构建词嵌入矩阵
 embeddings = generate_embedding_matrix(word_to_index)
 
-# 保存 embeddings
 torch.save(embeddings, 'model/embeddings.pt')
 
 # 数据预处理
 sequences = [[word_to_index[word] for word in text] for text in texts]
 max_seq_len = max(len(seq) for seq in sequences)
-# 将最大序列长度保存到文件中
 with open('model/max_seq_len.pkl', 'wb') as f:
     pickle.dump(max_seq_len, f)
 
 X = np.array([seq + [0] * (max_seq_len - len(seq)) for seq in sequences])
 y = np.array(df['label'].map({'rejection': 0, 'pass': 1}))
 
-# 划分训练集和测试集
+#划分训练集和测试集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 调整批量大小
+#调整批量大小
 batch_size = 4
 
-# 创建数据加载器
+#创建数据加载器
 train_dataset = TensorDataset(torch.LongTensor(X_train), torch.LongTensor(y_train))
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-# 模型配置
+#模型配置
 class Config:
     num_channels = 256
     seq_len = max_seq_len
@@ -93,20 +91,20 @@ class Config:
     output_size = 2
     dropout_keep = 0.5
 
-# 创建模型实例并移到 GPU
+#创建模型实例并移到GPU
 model = CharCNN(Config(), embeddings)
-model.to(device)  # 将模型移到设备上
+model.to(device)
 
-# 损失函数
+#损失函数
 criterion = nn.CrossEntropyLoss()
 
-# 选择优化器
+#选择优化器
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# 学习率调度器
+#学习率调度器
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 
-# 训练模型
+#训练模型
 num_epochs = 20
 for epoch in range(num_epochs):
     model.train()
@@ -121,8 +119,7 @@ for epoch in range(num_epochs):
         optimizer.step()
         loop.set_description(f'Epoch [{epoch + 1}/{num_epochs}]')
         loop.set_postfix(loss=loss.item())
-    # 调用学习率调度器
+    #调用学习率调度器
     scheduler.step()
 
-# 保存模型参数
 torch.save(model.state_dict(), 'model/char_cnn_model.pth')

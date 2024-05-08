@@ -1,15 +1,19 @@
 <template>
   <div @click="redirectToHomePage" class="container">
-    <img src="./static/images/bg2.png" alt="" class="bg-image">
+    <img src="./static/images/1.gif" alt="" class="bg-image">
     <div class="content">
       <h1>生物医学撤稿大数据看板</h1>
       <p>
-        <span>"生物医学撤稿大数据看板"是一个基于PubMed数据库的项目，旨在为研究人员和学者提供一个集中</span><br/>
-        <span>展示生物医学领域撤稿文献信息的平台。该项目的目标是为生物医学研究者提供一个高效、</span><br/>
-        <span>便捷的信息管理和分析工具，帮助他们更好地了解领域动态、指导研究方向，</span><br/>
-        <span>并促进学术交流和合作。通过该平台，用户可以从首页直接进</span><br/>
-        <span>入看板页面，即可对生物医学撤稿文献信息进行了解</span>
+        <span>这是一个基于PubMed数据库的项目</span><br>
+        <span>旨在为研究人员和学者提供一个集中展示</span><br>
+        <span>生物医学领域撤稿文献信息的平台</span><br>
+        <span>该项目的目标是为生物医学研究者提供一个</span><br>
+        <span>高效、便捷的信息管理和分析工具</span><br>
+        <span>帮助他们更好地了解领域动态、指导研究方向</span><br/>
       </p>
+      <br><br>
+      <h2>点击首页任意位置进入</h2>
+      <h2>Biomedical Retraction Big Data Visualization Dashboard Design</h2>
     </div>
   </div>
 
@@ -37,9 +41,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
 }
-
 .bg-image {
   width: 100%;
   height: 100%;
@@ -49,21 +52,27 @@ export default {
   left: 0;
   z-index: -1;
 }
-
 .content {
-  text-align: center;
-  color: white;
+  text-align: right;
+  color: #ADD8E6;
   z-index: 1;
   position: relative;
+  margin-left: auto;
+  margin-right: 150px;
+  transform: scale(1);
+  text-shadow: -1px -1px 0 #3b677d,
+                1px -1px 0 #3b677d,
+                -1px 1px 0 #3b677d,
+                1px 1px 0 #3b677d;
 }
-
-h1 {
+h1{
   font-size: 4em;
-  margin-top: 200px;
-  margin-bottom: 100px;
+  margin-top: 100px;
+  margin-bottom: 110px;
 }
-
 p {
   font-size: 1.6em;
 }
 </style>
+
+

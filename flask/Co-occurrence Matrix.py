@@ -8,7 +8,6 @@ def most_frequent_combination(lists_of_strings):
 
         # 初始化共现矩阵
         matrix = [[0] * len(vocabulary) for _ in range(len(vocabulary))]
-
         # 填充共现矩阵
         for string_list in lists_of_strings:
             for i, word1 in enumerate(vocabulary):

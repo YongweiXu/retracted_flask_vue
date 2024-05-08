@@ -20,10 +20,10 @@ export default {
           subtext: '通过概率 vs 拒绝概率',
           left: 'center',
           subtextStyle:{
-            color: '#efe5e3' // 标题颜色为黑色
+            color: '#efe5e3'
           },
           textStyle: {
-            color: '#ee6b3f' // 标题颜色为黑色
+            color: '#ee6b3f'
     }
         },
         tooltip: {
@@ -35,7 +35,7 @@ export default {
           left: 'left',
           data: ['通过概率', '拒绝概率'],
           textStyle: {
-            color: '#efe5e3' // 标题颜色为黑色
+            color: '#efe5e3'
     }
         },
         series: [
@@ -45,11 +45,11 @@ export default {
             radius: '55%',
             center: ['50%', '60%'],
             textStyle: {
-            color: '#efe5e3' // 标题颜色为黑色
+            color: '#efe5e3'
             },
             data: [
-              { value: this.passProbability, name: '通过概率', itemStyle: { color: '#67C23A' } }, // 通过概率的颜色为绿色
-              { value: this.rejectedProbability, name: '拒绝概率', itemStyle: { color: '#F56C6C' } } // 拒绝概率的颜色为红色
+              { value: this.passProbability, name: '通过概率', itemStyle: { color: '#67C23A' } },
+              { value: this.rejectedProbability, name: '拒绝概率', itemStyle: { color: '#F56C6C' } }
             ],
             emphasis: {
               itemStyle: {
@@ -69,5 +69,5 @@ export default {
 </script>
 
 <style scoped>
-/* 可以添加一些样式来调整图表的外观 */
+
 </style>

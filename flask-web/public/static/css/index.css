@@ -263,10 +263,10 @@ i {
   align-items: center;
   font-size: 30px;
   font-family: electronicFont;
-  color: #fff;
+  color: #ff0;
 }
 .yqlist li span {
-  opacity: 0.6;
+  opacity: 0.8;
   font-size: 14px;
 }
 .yq:before {

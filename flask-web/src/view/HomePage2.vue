@@ -30,7 +30,7 @@
         <div class="column">
           <div class="t_box">
             <header class="t_title">
-              <span>关键词词云</span>
+              <span>撤稿文献关键词及学科词云</span>
             </header>
             <div class="image-container">
               <img :src="'http://localhost:5000/wordcloud'" alt="" class="image">
@@ -67,9 +67,7 @@ export default {
     Chart6(myChart6);
   },
   methods: {
-    // 返回操作
     goBack() {
-      // 这里可以添加你的返回逻辑，比如返回上一页或者执行其他操作
       console.log('返回按钮被点击');
     }
   }
@@ -167,8 +165,8 @@ export default {
 }
 
 .image {
-  max-width: 96%; /* 让图片宽度充满容器 */
-  max-height: 96%; /* 让图片高度充满容器 */
+  max-width: 96%;
+  max-height: 96%;
 }
 
 .button-row {

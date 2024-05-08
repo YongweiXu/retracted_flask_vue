@@ -39,22 +39,16 @@ export default {
   },
   methods: {
     async predict() {
-      // 发送POST请求，提交文本框内容
       try {
         const response = await axios.post('http://localhost:5000/predict', {text: this.textInput});
-        // 清空文本框
         this.textInput = '';
-        // 获取预测结果
         this.predictionResult = response.data;
-        // 更新通过概率和拒绝概率
         this.passProbability = this.predictionResult.probabilities.pass;
         this.rejectedProbability = this.predictionResult.probabilities.rejected;
 
-        // 直接显示图表
         this.showChartDialog = true;
       } catch (error) {
         console.error('预测请求出错：', error);
-        // 处理错误
       }
     }
   }
@@ -66,7 +60,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh; /* 使内容垂直居中 */
+  height: 100vh;
 }
 
 textarea {

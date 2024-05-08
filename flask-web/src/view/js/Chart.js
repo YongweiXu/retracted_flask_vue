@@ -3,23 +3,19 @@ import * as echarts from 'echarts';
 import axios from 'axios';
 
 export function Chart1(myChart1) {
-  // 发起 HTTP 请求从后端获取数据
   fetch('http://localhost:5000/TIZ9')
     .then(response => response.json())
     .then(data => {
-      // 从返回的数据中提取标题和引用次数
       const titles = Object.values(data);
       const referenceCounts = Object.keys(data);
 
-      // 限制仅显示前20个标题及其对应的引用次数
       const top20Titles = titles.slice(0, 20);
       const top20ReferenceCounts = referenceCounts.slice(0, 20);
 
-      // 设置图表数据
       let option = {
         color: ['#3398DB'],
         xAxis: {
-          show : false,
+          show: false,
           type: 'category',
           data: top20Titles,
           axisTick: {
@@ -27,20 +23,32 @@ export function Chart1(myChart1) {
           }
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          axisLine: {
+            lineStyle: {
+              color: '#fff'
+            }
+          },
+          axisLabel: {
+            color: '#fff'
+          }
         },
         series: [{
-          data: top20ReferenceCounts.map(count => parseInt(count)), // 转换为整数
+          data: top20ReferenceCounts.map(count => parseInt(count)),
           type: 'bar',
-          barWidth: 'auto', // 设置柱状图宽度自适应
+          barWidth: 'auto',
           label: {
             show: true,
-            position: 'top'
+            position: 'top',
+            color: '#fff',
+            emphasis: {
+              textBorderColor: 'transparent'
+            }
           }
         }],
         tooltip: {
           position: function (pos, params, el, elRect, size) {
-            var obj = {top: 10};
+            var obj = { top: 10 };
             obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 10;
             return obj;
           },
@@ -50,26 +58,23 @@ export function Chart1(myChart1) {
             return `${title}: ${referenceCount}`;
           }
         },
-        dataZoom: [{ // 保留交互功能
+        dataZoom: [{
           type: 'slider',
-          show: false, // 关闭数据缩放框
+          show: false,
           start: 0,
           end: 100
-        }, { // 鼠标滚轮缩放
+        }, {
           type: 'inside',
           start: 0,
           end: 100
         }]
       };
 
-      // 渲染图表
       myChart1.setOption(option);
 
-      // Enable data zoom when user click bar.
       const zoomSize = 6;
       myChart1.on('click', function (params) {
-        const dataAxis = top20Titles; // 更新数据轴
-        console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+        const dataAxis = top20Titles;
         myChart1.dispatchAction({
           type: 'dataZoom',
           startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
@@ -81,6 +86,7 @@ export function Chart1(myChart1) {
       console.error('Error fetching data:', error);
     });
 }
+
 
 
 
@@ -123,9 +129,17 @@ export function Chart2(myChart2) {
                     data: years, // 设置x轴的数据为年份
                     axisPointer: {
                         type: 'shadow' // 设置悬停时的指示器类型为阴影
+                    },
+                    axisLabel: {
+                        color: '#fff' // 设置 x 轴文字颜色为白色
                     }
                 },
-                yAxis: { gridIndex: 0 },
+                yAxis: {
+                    gridIndex: 0,
+                    axisLabel: {
+                        show: false // 隐藏 y 轴文字
+                    }
+                },
                 grid: { top: '55%' },
                 dataZoom: [ // 配置dataZoom组件
                     {
@@ -273,13 +287,19 @@ export function Chart4(myChart4) {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: [] // 根据后端数据动态设置
+      data: [], // 根据后端数据动态设置
+      axisLabel: {
+        color: '#fff' // 设置 x 轴文字颜色为白色
+      }
     },
     yAxis: {
       type: 'value',
       name: 'Counts', // y轴名称
       axisPointer: {
         snap: true
+      },
+      axisLabel: {
+        show: false // 隐藏 y 轴文字
       }
     },
     dataZoom: [{ // 添加dataZoom组件配置
@@ -439,7 +459,6 @@ export function Chart5(myChart5, myChart6) {
 }
 
 
-
 export function Chart6(myChart) {
   // 发送请求获取关键词数据
   fetch('http://localhost:5000/DE')
@@ -450,12 +469,11 @@ export function Chart6(myChart) {
       return response.json();
     })
     .then(data => {
-      const keywords = Object.keys(data); // 获取关键词列表
+      const keywords = Object.keys(data);
 
       const seriesList = [];
       const years = [];
 
-      // 收集所有年份并排序
       for (let year = 1990; year <= 2025; year++) {
         years.push(year.toString());
       }
@@ -479,18 +497,34 @@ export function Chart6(myChart) {
         },
         xAxis: {
           type: 'category',
-          data: years, // 设置年份数据
+          data: years,
           nameLocation: 'middle',
-          boundaryGap: false
+          boundaryGap: false,
+          axisLine: {
+            lineStyle: {
+              color: '#fff'
+            }
+          },
+          axisLabel: {
+            color: '#fff'
+          }
         },
         yAxis: {
-          name: '数量'
+          name: '数量',
+          axisLine: {
+            lineStyle: {
+              color: '#fff'
+            }
+          },
+          axisLabel: {
+            color: '#fff'
+          }
         },
         grid: {
           right: 140
         },
-        dataZoom: [{ // 添加dataZoom组件配置
-          type: 'inside', // 内置缩放
+        dataZoom: [{
+          type: 'inside',
           start: 0,
           end: 100
         }],
@@ -514,10 +548,10 @@ export function Chart6(myChart) {
             x: 'Year',
             y: keyword,
             label: {
-              show: false, // 默认不显示标签
-              position: 'top', // 标签位置
+              show: false,
+              position: 'top',
               formatter: function(params) {
-                return params.value[1]; // 显示关键词名
+                return params.value[1];
               }
             },
             tooltip: [keyword]

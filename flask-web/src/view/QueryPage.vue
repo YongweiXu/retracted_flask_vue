@@ -75,7 +75,7 @@ export default {
       records: [],
       loading: false,
       currentPage: 1,
-      pageSize: 10 // 每页显示的记录数
+      pageSize: 10 //每页显示的记录数
     };
   },
   computed: {
@@ -95,7 +95,7 @@ export default {
           .then(response => {
             this.loading = false;
             this.records = response.data.records;
-            this.currentPage = 1; // 重置到第一页
+            this.currentPage = 1; //重置到第一页
           })
           .catch(error => {
             this.loading = false;
@@ -144,7 +144,7 @@ export default {
 
 .data-table th {
   background-color: #5da6eb;
-  color: #333; /* 避免与背景色冲突 */
+  color: #333;
 }
 
 .table-row:hover {
